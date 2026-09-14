@@ -1,0 +1,30 @@
+##############################################################
+#       How to update all mcus with new klipper version:     #
+##############################################################
+
+# Copy pre-created config files as .config:
+cp config.ebb36 .config # for the toolheads mcu
+cp config.eddy .config # for eddy prob mcu
+cp config.m8p .config # for the main mcu (M8P)
+
+# Load and save each config: 
+make menuconfig
+esc + y
+
+# Run the build
+make 
+
+# Copy the new bin file to klipper directory:
+cp out/klipper.bin m8p.bin
+cp out/klipper.bin eddy.bin
+cp out/klipper.bin ebb36.bin
+
+
+# Flush the new freamware:
+make flash FLASH_DEVICE=0483:df11 # for the M8P
+python3 ~/katapult/scripts/flashtool.py -i can0 -f ~/klipper/ebb36.bin -u edde08b84f69 # EBB36 Right
+python3 ~/katapult/scripts/flashtool.py -i can0 -f ~/klipper/ebb36.bin -u 71ddcef36cfd # EBB36 Left
+python3 ~/katapult/scripts/flashtool.py -i can0 -f ~/klipper/ebb36.bin -u 3cfca10df032 # Eddy Prob
+
+# if mcu is not avalable try --request-bootloader for the relevant mcu:
+python3 ~/katapult/scripts/flashtool.py -i can0 -r -u edde08b84f69
